@@ -44,6 +44,7 @@ from . import shared
 _BASE_URL_ = 'https://query2.finance.yahoo.com'
 _SCRAPE_URL_ = 'https://finance.yahoo.com/quote'
 
+
 class TickerBase():
     def __init__(self, ticker, session=None):
         self.ticker = ticker.upper()
@@ -377,7 +378,7 @@ class TickerBase():
                     self._institutional_holders['Date Reported'])
             if '% Out' in self._institutional_holders:
                 self._institutional_holders['% Out'] = self._institutional_holders[
-                    '% Out'].str.replace('%', '').astype(float) / 100
+                                                           '% Out'].str.replace('%', '').astype(float) / 100
 
         if self._mutualfund_holders is not None:
             if 'Date Reported' in self._mutualfund_holders:
@@ -385,7 +386,7 @@ class TickerBase():
                     self._mutualfund_holders['Date Reported'])
             if '% Out' in self._mutualfund_holders:
                 self._mutualfund_holders['% Out'] = self._mutualfund_holders[
-                    '% Out'].str.replace('%', '').astype(float) / 100
+                                                        '% Out'].str.replace('%', '').astype(float) / 100
 
         # sustainability
         d = {}
@@ -417,7 +418,7 @@ class TickerBase():
         except Exception:
             pass
 
-       # For ETFs, provide this valuable data: the top holdings of the ETF
+        # For ETFs, provide this valuable data: the top holdings of the ETF
         try:
             if 'topHoldings' in data:
                 self._info.update(data['topHoldings'])
@@ -483,9 +484,9 @@ class TickerBase():
 
         # generic patterns
         for key in (
-            (self._cashflow, 'cashflowStatement', 'cashflowStatements'),
-            (self._balancesheet, 'balanceSheet', 'balanceSheetStatements'),
-            (self._financials, 'incomeStatement', 'incomeStatementHistory')
+                (self._cashflow, 'cashflowStatement', 'cashflowStatements'),
+                (self._balancesheet, 'balanceSheet', 'balanceSheetStatements'),
+                (self._financials, 'incomeStatement', 'incomeStatementHistory')
         ):
             item = key[1] + 'History'
             if isinstance(data.get(item), dict):
@@ -505,7 +506,8 @@ class TickerBase():
         if isinstance(data.get('earnings'), dict):
             try:
                 earnings = data['earnings']['financialsChart']
-                earnings['financialCurrency'] = 'USD' if 'financialCurrency' not in data['earnings'] else data['earnings']['financialCurrency']
+                earnings['financialCurrency'] = 'USD' if 'financialCurrency' not in data['earnings'] else \
+                data['earnings']['financialCurrency']
                 self._earnings['financialCurrency'] = earnings['financialCurrency']
                 df = _pd.DataFrame(earnings['yearly']).set_index('date')
                 df.columns = utils.camel2title(df.columns)
@@ -559,9 +561,12 @@ class TickerBase():
         # Complementary key-statistics (currently fetching the important trailingPegRatio which is the value shown in the website)
         res = {}
         try:
-            my_headers = {'user-agent': 'curl/7.55.1', 'accept': 'application/json', 'content-type': 'application/json', 'referer': 'https://finance.yahoo.com/', 'cache-control': 'no-cache', 'connection': 'close'}
+            my_headers = {'user-agent': 'curl/7.55.1', 'accept': 'application/json', 'content-type': 'application/json',
+                          'referer': 'https://finance.yahoo.com/', 'cache-control': 'no-cache', 'connection': 'close'}
             p = _re.compile(r'root\.App\.main = (.*);')
-            r = _requests.session().get('https://finance.yahoo.com/quote/{}/key-statistics?p={}'.format(self.ticker, self.ticker), headers=my_headers)
+            r = _requests.session().get(
+                'https://finance.yahoo.com/quote/{}/key-statistics?p={}'.format(self.ticker, self.ticker),
+                headers=my_headers)
             q_results = {}
             my_qs_keys = ['pegRatio']  # QuoteSummaryStore
             my_ts_keys = ['trailingPegRatio']  # , 'quarterlyPegRatio']  # QuoteTimeSeriesStore
@@ -652,7 +657,8 @@ class TickerBase():
         data = self._earnings[freq]
         if as_dict:
             dict_data = data.to_dict()
-            dict_data['financialCurrency'] = 'USD' if 'financialCurrency' not in self._earnings else self._earnings['financialCurrency']
+            dict_data['financialCurrency'] = 'USD' if 'financialCurrency' not in self._earnings else self._earnings[
+                'financialCurrency']
             return dict_data
         return data
 
@@ -742,7 +748,7 @@ class TickerBase():
 
         url = 'https://markets.businessinsider.com/ajax/' \
               'SearchController_Suggest?max_results=25&query=%s' \
-            % urlencode(q)
+              % urlencode(q)
         session = self.session or _requests
         data = session.get(
             url=url,

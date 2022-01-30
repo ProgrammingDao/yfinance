@@ -33,7 +33,8 @@ except ImportError:
     import json as _json
 
 
-user_agent_headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+user_agent_headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, '
+                                    'like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
 
 def is_isin(string):
