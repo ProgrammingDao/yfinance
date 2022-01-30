@@ -21,18 +21,12 @@
 
 from __future__ import print_function
 
-# import time as _time
-import datetime as _datetime
-import requests as _requests
-import pandas as _pd
-# import numpy as _np
+from collections import namedtuple
+import datetime as datetime
+import pandas as pd
 
-# import json as _json
-# import re as _re
-from collections import namedtuple as _namedtuple
-
-from . import utils
-from .base import TickerBase
+from yfinance.utils.html import get_html
+from yfinance.core.base import TickerBase
 
 
 class Ticker(TickerBase):
@@ -54,20 +48,16 @@ class Ticker(TickerBase):
                 proxy = proxy["https"]
             proxy = {"https": proxy}
 
-        r = _requests.get(
-            url=url,
-            proxies=proxy,
-            headers=utils.user_agent_headers
-        ).json()
+        r: dict = get_html(url=url, proxy=proxy).json()
         if len(r.get('optionChain', {}).get('result', [])) > 0:
             for exp in r['optionChain']['result'][0]['expirationDates']:
-                self._expirations[_datetime.datetime.utcfromtimestamp(
+                self._expirations[datetime.datetime.utcfromtimestamp(
                     exp).strftime('%Y-%m-%d')] = exp
             opt = r['optionChain']['result'][0].get('options', [])
             return opt[0] if len(opt) > 0 else []
 
     def _options2df(self, opt, tz=None):
-        data = _pd.DataFrame(opt).reindex(columns=[
+        data = pd.DataFrame(opt).reindex(columns=[
             'contractSymbol',
             'lastTradeDate',
             'strike',
@@ -83,7 +73,7 @@ class Ticker(TickerBase):
             'contractSize',
             'currency'])
 
-        data['lastTradeDate'] = _pd.to_datetime(
+        data['lastTradeDate'] = pd.to_datetime(
             data['lastTradeDate'], unit='s', utc=True)
         if tz is not None:
             data['lastTradeDate'] = data['lastTradeDate'].dt.tz_convert(tz)
@@ -103,7 +93,7 @@ class Ticker(TickerBase):
             date = self._expirations[date]
             options = self._download_options(date, proxy=proxy)
 
-        return _namedtuple('Options', ['calls', 'puts'])(**{
+        return namedtuple('Options', ['calls', 'puts'])(**{
             "calls": self._options2df(options['calls'], tz=tz),
             "puts": self._options2df(options['puts'], tz=tz)
         })
