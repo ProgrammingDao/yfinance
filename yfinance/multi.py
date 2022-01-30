@@ -25,8 +25,11 @@ import time as _time
 import multitasking as _multitasking
 import pandas as _pd
 
-from . import Ticker, utils
-from . import shared
+from yfinance.utils.progress_bar import ProgressBar
+from yfinance.core.price_data import empty_price_history
+from yfinance.ticker import Ticker
+from yfinance.core import shared
+from yfinance.core.isin import is_isin, get_ticker_by_isin
 
 
 def download(tickers, start=None, end=None, actions=False, threads=True,
@@ -79,9 +82,9 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
     shared._ISINS = {}
     _tickers_ = []
     for ticker in tickers:
-        if utils.is_isin(ticker):
+        if is_isin(ticker):
             isin = ticker
-            ticker = utils.get_ticker_by_isin(ticker, proxy)
+            ticker = get_ticker_by_isin(ticker, proxy)
             shared._ISINS[ticker] = isin
         _tickers_.append(ticker)
 
@@ -90,7 +93,7 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
     tickers = list(set([ticker.upper() for ticker in tickers]))
 
     if progress:
-        shared._PROGRESS_BAR = utils.ProgressBar(len(tickers), 'completed')
+        shared._PROGRESS_BAR = ProgressBar(len(tickers), 'completed')
 
     # reset shared._DFS
     shared._DFS = {}
@@ -170,7 +173,7 @@ def _realign_dfs():
                 index=idx, data=shared._DFS[key]).drop_duplicates()
         except Exception:
             shared._DFS[key] = _pd.concat([
-                utils.empty_df(idx), shared._DFS[key].dropna()
+                empty_price_history(idx), shared._DFS[key].dropna()
             ], axis=0, sort=True)
 
         # remove duplicate index
