@@ -45,7 +45,7 @@ _BASE_URL_ = 'https://query2.finance.yahoo.com'
 _SCRAPE_URL_ = 'https://finance.yahoo.com/quote'
 
 
-class TickerBase():
+class TickerBase:
     def __init__(self, ticker, session=None):
         self.ticker = ticker.upper()
         self.session = session
@@ -558,7 +558,8 @@ class TickerBase():
             except Exception:
                 pass
 
-        # Complementary key-statistics (currently fetching the important trailingPegRatio which is the value shown in the website)
+        # Complementary key-statistics (currently fetching the important trailingPegRatio which is the value shown in
+        # the website)
         res = {}
         try:
             my_headers = {'user-agent': 'curl/7.55.1', 'accept': 'application/json', 'content-type': 'application/json',
@@ -589,10 +590,10 @@ class TickerBase():
                 # print(res)
                 # q_results[ticker].append(res)
                 except:
-                    q_results[ticker].append({i: np.nan})
+                    q_results[self.ticker].append({i: _np.nan})
 
-            res = {'Company': ticker}
-            q_results[ticker].append(res)
+            res = {'Company': self.ticker}
+            q_results[self.ticker].append(res)
         except Exception:
             pass
 

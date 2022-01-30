@@ -81,7 +81,8 @@ def get_news_by_isin(isin, proxy=None, session=None):
     return data.get('news', {})
 
 
-def empty_df(index=[]):
+def empty_df(index=None):
+    index = index if index is not None else []
     empty = _pd.DataFrame(index=index, data={
         'Open': _np.nan, 'High': _np.nan, 'Low': _np.nan,
         'Close': _np.nan, 'Adj Close': _np.nan, 'Volume': _np.nan})
@@ -118,7 +119,7 @@ def get_json(url, proxy=None, session=None):
     # return data
     new_data = _json.dumps(data).replace('{}', 'null')
     new_data = _re.sub(
-        r'\{[\'|\"]raw[\'|\"]:(.*?),(.*?)\}', r'\1', new_data)
+        r'{[\'|\"]raw[\'|\"]:(.*?),(.*?)}', r'\1', new_data)
 
     return _json.loads(new_data)
 
